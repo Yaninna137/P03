@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Conquest Logo Animation</title>
+    <link rel="stylesheet" href="Logo/styles.css">
+    <link rel="stylesheet" href="interfaz/x1.css">
+    <link rel="stylesheet" href="interfaz/x3.css">
+
+</head>
+<body>
+    <div id="box">
+        <h1 class="t">LORE DE SPACE</h1>
+        <div id="imagen-container">
+          <img src="../mi-proyecto/Archivos/h5.jpg" class="imagen-activa">
+          <img src="../mi-proyecto/Archivos/h6.jpg">
+          <img src="../mi-proyecto/Archivos/h7.jpg">
+        </div>
+        <button id="sig" onclick="siguienteImagen()">Siguiente</button>
+        <button id="count">continuar</button>
+    </div>
+    
+    <script>
+        let indiceActual = 0;
+
+        function siguienteImagen() {
+            const imagenes = document.querySelectorAll('#imagen-container img');
+            const imagenActual = imagenes[indiceActual];
+
+            // Añadir clase 'saliendo' para la animación de salida
+            imagenActual.classList.add('saliendo');
+
+            // Esperar a que termine la animación antes de cambiar la imagen
+            setTimeout(() => {
+                imagenActual.classList.remove('imagen-activa', 'saliendo'); // Quitar clases de la imagen actual
+                indiceActual = (indiceActual + 1) % imagenes.length; // Avanzar al siguiente índice
+                const nuevaImagen = imagenes[indiceActual];
+                nuevaImagen.classList.add('imagen-activa'); // Mostrar la nueva imagen
+
+                // Mostrar el botón 'continuar' si estamos en la última imagen
+                if (indiceActual === imagenes.length - 1) {
+                    document.getElementById("count").style.display = "inline";
+                }
+            }, 600); // Tiempo de la animación CSS
+        }
+
+        // Redirige al hacer clic en 'continuar'
+        document.getElementById("count").addEventListener("click", () => {
+            window.location.href = '../index.html';
+        });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.min.js"></script>
+    <script type="module" src="./Data/Game.js"></script>
+</body>
+</html>
