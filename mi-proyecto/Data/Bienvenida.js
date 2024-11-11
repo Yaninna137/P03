@@ -79,7 +79,7 @@ class SimulacionEspacio {
     }
     efecto(){
         const efecto = new Carga_ArchMusic(this.camara); 
-        efecto.Cargar_audio('./Archivos/Efecto/play.mp3');
+        efecto.Reproducir_unaVez('./Archivos/Efecto/play.mp3');
 
     }
 

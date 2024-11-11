@@ -38,6 +38,15 @@ button:hover {
     top:70vh;
     left: 75vh;
 }
+#volver_galaxia{
+    top:70vh;
+    left: 75vh;
+}
+#fin{
+    width: 7rem;
+    top:70vh;
+    left: 95vh;
+}
 p{
     /* width: 40vh; */
     background-color: rgba(255, 0, 0, 0.167);

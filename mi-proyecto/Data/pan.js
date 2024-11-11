@@ -28,9 +28,9 @@ class SimulacionEspacio {
         this.Tipo_Ecena = 1;
         this.ruta_Modelos = [
             ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave1.glb',-2, 3, -10, 1.1],
-            ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave3.glb', 2, 3, -10, 7],
+            ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave3.glb', 2, 2, -10, 7],
             ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave4.glb',-2, 3, -10, 1],
-            ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave2.glb',-4, 3, -10, 1]
+            ['../mi-proyecto/Archivos/Modelos 3D/GLB/nave2.glb',-4, 2, -10, 1]
         ];
         this.ruta_Enemiga = [
             ['../mi-proyecto/Archivos/Modelos 3D/GLB/enemy2.glb'], //9,-5,0,1,2,-21.4,-0.3
@@ -47,17 +47,10 @@ class SimulacionEspacio {
         this.Nivel1 = false; // Planeta jugado y completado
         this.Nivel2 = false; // Planeta jugado y completado
         this.Nivel3 = false; // Planeta jugado y completado
-        this.Planet_Select = null; //Planeta selecionado
         this.Animacion_Planet = false;
         this.Estado_Game = false;
         this.puntos = 0;
         this.velocidadNave = 0.1;
-        this.StartTime = null
-        this.Tiempo_Enemy = 3;
-        this.Tiempo_Nivel = 10;
-        this.Num_Enemigo = 0;
-        this.EnemigoSS = [];
-        this.Totaldisparo = 0
         this.proyectiles = [];
 
         this.raycaster = new THREE.Raycaster();
@@ -87,7 +80,7 @@ class SimulacionEspacio {
                     this.naveJugador.nave.position.x += this.velocidadNave;
                     break;
                 case ' ':
-                    this.disparar_Jugador();
+                    this.disparar();
                     break;
             }
         }
@@ -101,8 +94,7 @@ class SimulacionEspacio {
                 this.htmlAA = document.getElementById("box").innerHTML = `
                 <h1 class="t">GALAXIA</h1>
                 <button id="Mecanico">Mejorar nave</button>
-                <p id="punto">Puntos Total Obtenidos: ${this.puntos}</p>
-                `
+                <p id="punto">Puntos Total Obtenidos: ${this.puntos} ; Espere 6seg y carga la musica de fondo; Precione un planeta para jugar(Spoiler: No habra juego, pero si dentra y preciona el boton 'Volver galaxia', desbloqueas el final del juego)</p>`
                 
                 if (this.Nivel1 && this.Nivel2 && this.Nivel3){
                     this.htmlAA = document.getElementById("box").innerHTML += `
@@ -113,6 +105,7 @@ class SimulacionEspacio {
                     }
                 document.getElementById("box").appendChild(this.renderizador.domElement);
                 this.Music.detenerAudio(); // Detener la música anterior si hay
+
                 this.Music.Cargar_audio('./Archivos/Musica/music-planet.mp3'); // Cargar nueva música
 
                 this.Galaxia();  // Carga todo lo de Galaxia
@@ -163,18 +156,27 @@ class SimulacionEspacio {
                 });
                 break;
             case 3:
-                this.SEfecto.Reproducir_unaVez('./Archivos/Efecto/risa-enemy.mp3');
-                this.Estado_Game = true;
-                this.htmlAA = document.getElementById("box").innerHTML = '';
+                this.htmlAA = document.getElementById("box").innerHTML = `
+                <button id="volver_galaxia">Volver_galaxia</button>
+                `
+                
                 document.getElementById("box").appendChild(this.renderizador.domElement);
 
+                this.SEfecto.Reproducir_unaVez('./Archivos/Efecto/risa-enemy.mp3');
+                this.Estado_Game = true;
                 this.Music.detenerAudio(); // Detener la música anterior si hay
                 this.Music.Cargar_audio('./Archivos/Musica/music-intro.mp3'); // Cargar nueva música
 
-                this.eliminarPlaneta()
+                this.eliminarPlaneta();
                 this.Juego();
+                document.getElementById("volver_galaxia").addEventListener('click', () => {
+                    this.SEfecto.Reproducir_unaVez('./Archivos/Efecto/p-retroceder.mp3');
+                    this.Tipo_Ecena = 1; // Cambiar a la escena 2
+                    this.Modo_Ecena(this.Tipo_Ecena); // Cambiar la escena
+                    });
                 break;
         }
+
     }
     Galaxia(){
         // Remover la nave anterior si existe
@@ -199,9 +201,12 @@ class SimulacionEspacio {
     Juego(){
         this.escena.remove(this.naveJugador.nave)
         this.naveJugador = new NaveEspacial(this.ruta_Modelos[this.indice][0],this.escena,this.ruta_Modelos[this.indice][1],this.ruta_Modelos[this.indice][2],this.ruta_Modelos[this.indice][3],this.life,this.ruta_Modelos[this.indice][4]);
-        this.naveJugador.mostrarVida();
+        this.naveJugador.mostrarVida()
         this.naveJugador.crearBarra();
-        this.Tipo_Nivel(this.Planet_Select);
+        this.Enemy = new Enemyl(this.ruta_Enemiga[0],this.escena,9,-5,0,1,2,-21.4,-0.3)
+        this.Nivel1 = true;
+        this.Nivel2 = true;
+        this.Nivel3 = true;
     }
     eliminar_Nave(objeto){
         this.escena.remove(objeto.nave);
@@ -214,50 +219,18 @@ class SimulacionEspacio {
         this.escena.remove(this.pa2.planeta);
         this.escena.remove(this.pa1.planeta);
     }
+
     Planeta(){
         this.pa1 = new Planet('p1',this.escena,'../mi-proyecto/Archivos/Modelos 3D/FXB/aaa.fbx',-150, 40, -190);  // Aquí cargas el planeta
         this.pa2 = new Planet('p2',this.escena,'../mi-proyecto/Archivos/Modelos 3D/FXB/aaa.fbx',0, 40, -190);  // Aquí cargas el planeta
         this.pa3 = new Planet('p3',this.escena,'../mi-proyecto/Archivos/Modelos 3D/FXB/aaa.fbx',150, 40, -190);  // Aquí cargas el planeta
     }
-    Tipo_Nivel(planet_n){
-        switch(planet_n){
-            case 'p1':
-                this.Totaldisparo = this.disparo;
-                this.Tiempo_Enemy = 5;
-                this.Tiempo_Nivel = 30;
-                this.Num_Enemigo = 3;
-                this.EnemigoSS = [];
-                for(let i=0;i< this.Num_Enemigo; i++){
-                    this.enemigo = new Enemyl(this.ruta_Enemiga[0],this.escena,9+(2*i),3,0,1,2,-21.4,-0.3);
-                    this.EnemigoSS.push(this.enemigo);
-                }
-                break;
-            case 'p2':
-                this.Tiempo_Enemy = 4;
-                this.Tiempo_Nivel = 25;
-                this.Num_Enemigo = 3;
-                this.EnemigoSS = [];
-                for(let i=0;i< this.Num_Enemigo; i++){
-                    this.enemigo = new Enemyl(this.ruta_Enemiga[1],this.escena,9+(2*i),3,0,1,2,-21.4,-0.3);
-                    this.EnemigoSS.push(this.enemigo);
-                }
-                break;
-            case 'p3':
-                this.Tiempo_Enemy = 3;
-                this.Tiempo_Nivel = 20;
-                this.Num_Enemigo = 3;
-                this.EnemigoSS = [];
-                for(let i=0;i< this.Num_Enemigo; i++){
-                    this.enemigo = new Enemyl(this.ruta_Enemiga[0],this.escena,9+(2*i),3,0,1,2,-21.4,-0.3);
-                    this.EnemigoSS.push(this.enemigo);
-                }
-                this.jefe = new Enemyl(this.ruta_Enemiga[2],this.escena,9+(2*i),3,0,1,5,-21.4,-0.3);
-                break;
-        }
-    }
-    disparar_Jugador() {
+    Dat_P1(){}
+    Dat_P2(){}
+    Dat_P3(){}
 
-        if (this.proyectiles.length < this.Totaldisparo-1) { // Limitar la cantidad de proyectiles
+    disparar() {
+        if (this.proyectiles.length < 5) { // Limitar la cantidad de proyectiles
             const proyectilGeometry = new THREE.SphereGeometry(0.1, 8, 8); // Pequeña esfera para el láser
             const proyectilMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
             const proyectil = new THREE.Mesh(proyectilGeometry, proyectilMaterial);
@@ -271,50 +244,17 @@ class SimulacionEspacio {
 
             this.escena.add(proyectil);
             this.proyectiles.push(proyectil);
-            this.disparo -= 1;
-            this.naveJugador.actualizarBarra()
-        }else{
-            if(this.disparo === 0){
-                this.disparo = this.Totaldisparo;
-            }
         }
-
     }
-    disparar_Enemigo(Objeto) {
-        const proyectilGeometry = new THREE.SphereGeometry(0.1, 8, 8); // Pequeña esfera para el láser
-        const proyectilMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-        const proyectil = new THREE.Mesh(proyectilGeometry, proyectilMaterial);
-
-            // Posicionar el proyectil delante de la nave
-        proyectil.position.set(
-            Objeto.enemy.position.x,
-            Objeto.enemy.position.y,
-            Objeto.enemy.position.z + 1
-        );
-
-        this.escena.add(proyectil);
-        this.proyectiles.push(proyectil);
-
-    }
-    Actualizar_disparo_Enemigo(){ {
+    Actualizar_disparo(){ {
         if(this.Estado_Game){
+            console.log('salio pero no animos')
             // Limitar la actualización de los proyectiles
             for (let i = this.proyectiles.length - 1; i >= 0; i--) {
                 this.proyectiles[i].position.z -= 0.5; // Movimiento hacia la cámara
-                if (this.naveJugador.nave && this.detectarColisionNAVE(this.proyectiles[i], this.naveJugador)) {
-                    console.log("¡Impacto en la nave !");
-                    this.vida -= 1;
-                    if (this.vida === 0){
-                        this.escena.remove(this.naveJugador.nave);
-                        for(let i=0;i< this.EnemigoSS.length -1; i++){
-                            this.escena.remove(this.EnemigoSS[i].enemy);
-                        }
-                        // if (this.jefe) {
-                        //     this.escena.remove(this.jefe.enemy);
-                        // }
-                        this.Estado_Game(false);  // Termina el juego
-                        console.log('Murio Jugador')
-                    }
+                if (this.Enemy.enemy && this.detectarColision(this.proyectiles[i], this.Enemy)) {
+                    console.log("¡Enemigo derrotado!");
+                    this.escena.remove(this.Enemy.enemy);
                     this.escena.remove(this.proyectiles[i]);
                     this.proyectiles.splice(i, 1); // Eliminar el proyectil
                 } else if (this.proyectiles[i].position.z < -50) { // Proyectil fuera de pantalla
@@ -324,64 +264,18 @@ class SimulacionEspacio {
             }
         }
     }}
-    Actualizar_disparo(){ {
-        if(this.Estado_Game){
-            // Limitar la actualización de los proyectiles
-            for (let i = this.proyectiles.length - 1; i >= 0; i--) {
-                this.proyectiles[i].position.z -= 0.5; // Movimiento hacia la cámara
-                for(let i=0;i< this.EnemigoSS.length -1; i++){
-                    if (this.EnemigoSS[i].enemy && this.detectarColision(this.proyectiles[i], this.EnemigoSS[i])) {
-                        console.log("¡Enemigo derrotado!");
-                        this.escena.remove(this.EnemigoSS[i].enemy);
-                        this.escena.remove(this.proyectiles[i]);
-                        this.proyectiles.splice(i, 1); // Eliminar el proyectil
-                        this.EnemigoSS[i].splice(i, 1); // Eliminar enemigo
-                    } else if (this.proyectiles[i].position.z < -50) { // Proyectil fuera de pantalla
-                        this.escena.remove(this.proyectiles[i]);
-                        this.proyectiles.splice(i, 1);
-                    }
-                }
-            }
-        }
-    }}
     detectarColision(proyectil, objetivo) {
         const proyectilBox = new THREE.Box3().setFromObject(proyectil);
         const objetivoBox = new THREE.Box3().setFromObject(objetivo.enemy);
         return proyectilBox.intersectsBox(objetivoBox);
     }
-    detectarColisionNAVE(proyectil, objetivo) {
-        const proyectilBox = new THREE.Box3().setFromObject(proyectil);
-        const objetivoBox = new THREE.Box3().setFromObject(objetivo.nave);
-        return proyectilBox.intersectsBox(objetivoBox);
-    }
+
     masCorazon() {
         if (this.life < 5) this.life += 1;
         console.log(this.life);
         this.Mecanico(); // Aplicar cambios
     }
-    Medida(){
-        if(this.StartTime === null){
-            this.StartTime = Date.now();
-        }
-        const elapsedTIME = (Date.now()-this.StartTime)/1000;
-        const progress = Math.min(elapsedTIME / this.Tiempo_Nivel,1);
-        // const progessEnemy = [];
-        // for(let i=0;i< this.EnemigoSS.length -1; i++){
-        //     const pE = Math.min(elapsedTIME / this.Tiempo_Enemy,1);
-        //     progessEnemy.push(pE)
-        // }
-        // for(let i=0;i< progessEnemy.length -1; i++){
-        //     if (progessEnemy[i]===1){
-        //         this.disparar_Enemigo(this.EnemigoSS[i]);
-        //     }
-        // }   
-        if (progress === 1){
-            this.Estado_Game = false;
-            this.StartTime = null;
-            this.Tipo_Ecena = 1;
-            this.Modo_Ecena(this.Tipo_Ecena);
-        }
-    }
+
     masDisparo() {
         if (this.disparo < 6) this.disparo += 1;
         console.log(this.disparo);
@@ -416,15 +310,6 @@ class SimulacionEspacio {
         // this.pa1.rotarPlaneta(this.Animacion_Planet);
         // this.pa2.rotarPlaneta(this.Animacion_Planet);
         // this.pa3.rotarPlaneta(this.Animacion_Planet);
-        if(this.Estado_Game){
-            if (this.naveJugador.nave) this.naveJugador.actualizarBoundingBox();
-            for(let i=0;i< this.EnemigoSS.length -1; i++){
-                if (this.naveEnemiga.nave) this.naveEnemiga.actualizarBoundingBox();
-            }
-            
-    
-            this.Medida()
-        }
         this.Actualizar_disparo();
         this.renderizador.render(this.escena, this.camara);
     }
@@ -442,7 +327,6 @@ class SimulacionEspacio {
             try{
                 this.Tipo_Ecena = 3;
                 this.Modo_Ecena(this.Tipo_Ecena);
-                this.Planet_Select = this.pa3.name;
             }catch(error){
                 console.log(error)
             }
@@ -453,7 +337,6 @@ class SimulacionEspacio {
             try{
                 this.Tipo_Ecena = 3;
                 this.Modo_Ecena(this.Tipo_Ecena);
-                this.Planet_Select = this.pa2.name;
             }catch(error){
                 console.log(error);
             }
@@ -463,7 +346,6 @@ class SimulacionEspacio {
             try{
                 this.Tipo_Ecena = 3;
                 this.Modo_Ecena(this.Tipo_Ecena);
-                this.Planet_Select = this.pa1.name;
             }catch(error){
                 console.log(error)
             }
