@@ -10,7 +10,6 @@ export class Carga_ArchMusic {
 
     Cargar_audio(rutaArchivo) {
         this.music = true;
-        // Manejo de errores y consola para diagnóstico
         this.audioLoader.load(
             rutaArchivo,
             (buffer) => {
@@ -19,6 +18,30 @@ export class Carga_ArchMusic {
                 this.sound.setVolume(0.5);
                 this.sound.play();
                 console.log("Música cargada y reproduciendo.");
+            },
+            undefined,
+            (error) => {
+                console.error("Error al cargar el archivo de audio:", error);
+            }
+        );
+    }
+
+    Reproducir_unaVez(rutaArchivo) {
+        this.music = true;
+        this.audioLoader.load(
+            rutaArchivo,
+            (buffer) => {
+                this.sound.setBuffer(buffer);
+                this.sound.setLoop(false); // Reproducción sin bucle
+                this.sound.setVolume(0.3);
+
+                // Detener el audio actual si ya está en reproducción
+                if (this.sound.isPlaying) {
+                    this.sound.stop();
+                }
+
+                this.sound.play();
+                console.log("Música cargada y reproduciendo una vez.");
             },
             undefined,
             (error) => {
@@ -48,21 +71,3 @@ export class Carga_ArchMusic {
         }
     }
 }
-
-// export class Carga_ArchMusic {
-//     constructor(camara){
-//         this.camara = camara;
-//         this.listener = new THREE.AudioListener();
-//         this.camara.add(this.listener);
-//         this.sonido = new THREE.Audio(this.listener);
-//         this.cargadorAudio = new THREE.AudioLoader();
-//     }
-//     Cargar_audio(ruta_MP3){
-//         this.cargadorAudio.load(ruta_MP3, (buffer) => {
-//             this.sonido.setBuffer(buffer);
-//             this.sonido.setLoop(true);
-//             this.sonido.setVolume(0.5);
-//             this.sonido.play();
-//         });
-//     }
-// }
