@@ -47,8 +47,17 @@ Rapier.js es uno de los motores de física en 3D para JavaScript más populares 
 - `Facilidad de uso`|-Curva de aprendizaje un poco más inclinada debido a la traducción de conceptos de Rust a JS.
 ---
 ## Diagrama necesarios
+### Diagramas de lógicas internas del juego (mecánicas y runtime)
 - `Class/Module Diagram` |- Bucle de Juego y Arquitectura Modular Separa el ciclo requestAnimationFrame del renderizador, el gestor de escenas, el motor de físicas y el gestor de eventos de entrada (teclado/mouse).
 
 - `FSM` |- Máquina de Estados Finita : Define los estados del jugador (reposo, movimiento, salto, interacción) y de la partida (menú, cargando, juego activo, pausa, derrota).
-
+- 
 - `Flujo de Render vs. UI`: Un diagrama de capas que mapee qué corre en el canvas WebGL (objetos 3D y sprites 2D en el espacio de juego) y qué vive en el DOM HTML (menús, HUD, botones de pausa).
+- `Pipeline de Actores y Fisicas`|-Mostrar el ciclo exacto de cada frame.(AL ser un juego espacial, acá se define si la nave se mueve aplicando impulso vectorial físcos [Inercia espacial] o mediante control cinematico][Three.js & Rapier]).
+  
+- `Carga de Recursos`: |- Mapea cómo se descarga los archivos (.glob, ogg, texturas)antes de entrar a la partida, esta se define como
+  - Pantalla de carga -> Promesas paralelas (GLTFLoader,AudioLoader)-> Instanciación en memoria -> Transición al menú principal/jugeo.
+### Diagrama de vista ecosistema, herramientas y futura integraciones.
+
+- `Stack Tecnólógico y Capas (Technology Stack / Tier Diagram)` : Mapea la pila de herramientas clasificadas por capas de responsabilidad para que se entienda el ecosistema completo.
+- `Deployment / Context Diagram`: Muestra cómo viaja el proyecto desde el repositorio hasta el navegador del usuario y cómo se comunicaría con servicios externos.
